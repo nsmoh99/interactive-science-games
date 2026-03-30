@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الأمواج التفاعلية</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f8ff; text-align: center; }
+        .wave { width: 100%; height: 200px; background: linear-gradient(to bottom, #00f, #0ff); }
+        .game-container { padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>لعبة الأمواج التفاعلية</h1>
+        <div class="wave"></div>
+        <p>أهلاً وسهلاً بك في لعبة الأمواج. اضغط على زر البداية!</p>
+        <button onclick="startGame()">ابدأ اللعبة</button>
+    </div>
+    <script>
+        function startGame() {
+            alert('بداية اللعبة!');
+            // يمكنك إضافة مزيد من منطق اللعبة هنا
+        }
+    </script>
+</body>
+</html>
