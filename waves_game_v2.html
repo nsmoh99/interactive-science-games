@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Waves Educational Game</title>
+    <style>
+        body {
+            background-color: lightblue;
+            color: black;
+            font-family: Arial, sans-serif;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        #scoreScreen {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Waves Educational Game</h1>
+    <div id="game">
+        <div id="question"></div>
+        <div id="answers"></div>
+    </div>
+    <div id="scoreScreen">
+        <h2>Your Score: <span id="score"></span></h2>
+        <div id="emoji"></div>
+    </div>
+    
+    <script>
+        let questions = [
+            { question: "What is a wave?", answers: ["A disturbance that transfers energy", "A solid object", "A form of matter"], correct: 0 },
+            // Add 14 more questions here...
+        ];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        const totalQuestions = questions.length;
+
+        function loadQuestion() {
+            if (currentQuestionIndex < totalQuestions) {
+                const q = questions[currentQuestionIndex];
+                document.getElementById("question").innerText = q.question;
+                const answersContainer = document.getElementById("answers");
+                answersContainer.innerHTML = "";
+                q.answers.forEach((answer, index) => {
+                    const button = document.createElement("button");
+                    button.innerText = answer;
+                    button.onclick = () => checkAnswer(index);
+                    answersContainer.appendChild(button);
+                });
+            } else {
+                showScore();
+            }
+        }
+
+        function checkAnswer(selectedIndex) {
+            const q = questions[currentQuestionIndex];
+            if (selectedIndex === q.correct) {
+                score++;
+            } else {
+                // Wrong feedback could be added here
+            }
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function showScore() {
+            document.getElementById("game").style.display = "none";
+            document.getElementById("score").innerText = score;
+            const emoji = score / totalQuestions > 0.7 ? "😊" : "😞";
+            document.getElementById("emoji").innerText = emoji;
+            document.getElementById("scoreScreen").style.display = "block";
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
