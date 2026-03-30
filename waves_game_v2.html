@@ -1,83 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Waves Educational Game</title>
-    <style>
-        body {
-            background-color: lightblue;
-            color: black;
-            font-family: Arial, sans-serif;
-        }
-        .correct {
-            color: green;
-        }
-        .incorrect {
-            color: red;
-        }
-        #scoreScreen {
-            display: none;
-        }
-    </style>
+    <title>لعبة الأمواج التفاعلية</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js"></script>
 </head>
 <body>
-    <h1>Waves Educational Game</h1>
-    <div id="game">
-        <div id="question"></div>
-        <div id="answers"></div>
+    <div class="container">
+        <h1>لعبة الأمواج التعليمية</h1>
+        <div id="question-container"></div>
+        <div id="timer">20</div>
+        <div id="result-container" hidden></div>
     </div>
-    <div id="scoreScreen">
-        <h2>Your Score: <span id="score"></span></h2>
-        <div id="emoji"></div>
-    </div>
-    
-    <script>
-        let questions = [
-            { question: "What is a wave?", answers: ["A disturbance that transfers energy", "A solid object", "A form of matter"], correct: 0 },
-            // Add 14 more questions here...
-        ];
-        let currentQuestionIndex = 0;
-        let score = 0;
-        const totalQuestions = questions.length;
-
-        function loadQuestion() {
-            if (currentQuestionIndex < totalQuestions) {
-                const q = questions[currentQuestionIndex];
-                document.getElementById("question").innerText = q.question;
-                const answersContainer = document.getElementById("answers");
-                answersContainer.innerHTML = "";
-                q.answers.forEach((answer, index) => {
-                    const button = document.createElement("button");
-                    button.innerText = answer;
-                    button.onclick = () => checkAnswer(index);
-                    answersContainer.appendChild(button);
-                });
-            } else {
-                showScore();
-            }
-        }
-
-        function checkAnswer(selectedIndex) {
-            const q = questions[currentQuestionIndex];
-            if (selectedIndex === q.correct) {
-                score++;
-            } else {
-                // Wrong feedback could be added here
-            }
-            currentQuestionIndex++;
-            loadQuestion();
-        }
-
-        function showScore() {
-            document.getElementById("game").style.display = "none";
-            document.getElementById("score").innerText = score;
-            const emoji = score / totalQuestions > 0.7 ? "😊" : "😞";
-            document.getElementById("emoji").innerText = emoji;
-            document.getElementById("scoreScreen").style.display = "block";
-        }
-
-        loadQuestion();
-    </script>
 </body>
 </html>
+
+<script>
+const questions = [
+    {question: 'ما هي الموجة؟', answers: ['حركة', 'نبضة', 'ضوء', 'صوت'], correct: 1},
+    {question: 'ما هو الصوت؟', answers: ['موجة', 'ذرة', 'جزء', 'كائن'], correct: 0},
+    // 13 additional questions...
+];
+
+let currentQuestionIndex = 0;
+let timer;
+let score = 0;
+
+function startGame() {
+    currentQuestionIndex = 0;
+    score = 0;
+    nextQuestion();
+}
+
+function nextQuestion() {
+    if (currentQuestionIndex < questions.length) {
+        showQuestion(questions[currentQuestionIndex]);
+    } else {
+        showResults();
+    }
+}
+
+function showQuestion(question) {
+    document.getElementById('question-container').innerHTML = `<h2>${question.question}</h2>`;
+    question.answers.forEach((answer, index) => {
+        document.getElementById('question-container').innerHTML += `<button onclick="selectAnswer(${index})">${answer}</button>`;
+    });
+    startTimer();
+}
+
+function selectAnswer(index) {
+    if (index === questions[currentQuestionIndex].correct) {
+        score++;
+        playSound('correct.wav');
+    } else {
+        playSound('wrong.wav');
+    }
+    currentQuestionIndex++;
+    nextQuestion();
+}
+
+function showResults() {
+    document.getElementById('result-container').innerHTML = `نتيجتك: ${score}/${questions.length}`;
+    if (score / questions.length > 0.7) {
+        document.getElementById('result-container').innerHTML += '🎉 رائعة!';
+    } else {
+        document.getElementById('result-container').innerHTML += 'حاول مرة أخرى!';
+    }
+    document.getElementById('result-container').hidden = false;
+}
+
+function startTimer() {
+    let timeLeft = 20;
+    document.getElementById('timer').innerText = timeLeft;
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').innerText = timeLeft;
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            nextQuestion();
+        }
+    }, 1000);
+}
+
+function playSound(sound) {
+    const audio = new Audio(sound);
+    audio.play();
+}
+
+startGame();
+</script>
