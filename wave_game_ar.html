@@ -1,27 +1,217 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة الأمواج التفاعلية</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f8ff; text-align: center; }
-        .wave { width: 100%; height: 200px; background: linear-gradient(to bottom, #00f, #0ff); }
-        .game-container { padding: 20px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لعبة الموجات - من الكتاب</title>
+
+<style>
+body {
+    font-family: Tahoma;
+    background: linear-gradient(135deg, #4facfe, #00c6ff);
+    text-align: center;
+}
+
+.container {
+    background: white;
+    width: 90%;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 15px;
+}
+
+canvas {
+    background: #f0f8ff;
+    border-radius: 10px;
+    margin: 15px;
+}
+
+button {
+    padding: 10px;
+    margin: 8px;
+    width: 75%;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    background: #4facfe;
+    color: white;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #0099ff;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.correct { background: green !important; color: white; }
+.wrong { background: red !important; color: white; }
+
+#timer { color: red; font-size: 20px; font-weight: bold; }
+
+</style>
 </head>
+
 <body>
-    <div class="game-container">
-        <h1>لعبة الأمواج التفاعلية</h1>
-        <div class="wave"></div>
-        <p>أهلاً وسهلاً بك في لعبة الأمواج. اضغط على زر البداية!</p>
-        <button onclick="startGame()">ابدأ اللعبة</button>
-    </div>
-    <script>
-        function startGame() {
-            alert('بداية اللعبة!');
-            // يمكنك إضافة مزيد من منطق اللعبة هنا
+
+<div class="container">
+
+<h1>🎮 لعبة الموجات (من الكتاب)</h1>
+
+<button onclick="startGame()" id="startBtn">ابدأ اللعبة</button>
+
+<div id="game" style="display:none;">
+<div id="timer"></div>
+<h3 id="question"></h3>
+<canvas id="canvas" width="300" height="150"></canvas>
+<div id="answers"></div>
+<button onclick="nextQuestion()">التالي</button>
+</div>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+
+let questions = [
+{q:"انظر إلى الشكل: ما اسم أعلى نقطة؟", type:"wave", c:1,
+a:["القاع","القمة","تخلخل","تضاغط"]},
+
+{q:"ما اسم أدنى نقطة في الشكل؟", type:"wave", c:0,
+a:["القاع","القمة","تخلخل","تضاغط"]},
+
+{q:"ما نوع هذه الموجة؟", type:"transverse", c:1,
+a:["طولية","مستعرضة","كهربائية","حرارية"]},
+
+{q:"ما نوع هذه الموجة؟", type:"longitudinal", c:0,
+a:["طولية","مستعرضة","ضوئية","ساكنة"]},
+
+{q:"ماذا يمثل تقارب الجسيمات؟", type:"longitudinal", c:2,
+a:["تخلخل","قمة","تضاغط","قاع"]},
+
+{q:"ماذا يمثل تباعد الجسيمات؟", type:"longitudinal", c:0,
+a:["تخلخل","تضاغط","قمة","قاع"]}
+];
+
+let current = 0;
+let score = 0;
+let timer;
+let timeLeft = 15;
+
+function draw(type){
+    let c = document.getElementById("canvas");
+    let ctx = c.getContext("2d");
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.strokeStyle = "#0066cc";
+    ctx.lineWidth = 2;
+    ctx.fillStyle = "#333";
+    ctx.font = "14px Tahoma";
+
+    if(type==="wave"){
+        ctx.beginPath();
+        for(let x=0;x<300;x++){
+            let y = 75 + 40*Math.sin(x*0.05);
+            ctx.lineTo(x,y);
         }
-    </script>
+        ctx.stroke();
+
+        ctx.fillText("قمة",140,20);
+        ctx.fillText("قاع",140,140);
+    }
+
+    if(type==="transverse"){
+        ctx.beginPath();
+        for(let x=0;x<300;x++){
+            let y = 75 + 40*Math.sin(x*0.05);
+            ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+        ctx.fillText("موجة مستعرضة",90,20);
+    }
+
+    if(type==="longitudinal"){
+        for(let i=0;i<10;i++){ 
+            let x = i*30;
+            ctx.fillRect(x,60,10,30);
+        }
+        ctx.fillText("تضاغط",50,40);
+        ctx.fillText("تخلخل",180,40);
+    }
+}
+
+function startGame(){
+    document.getElementById("startBtn").style.display="none";
+    document.getElementById("game").style.display="block";
+    loadQuestion();
+}
+
+function loadQuestion(){
+    resetTimer();
+
+    let q = questions[current];
+    document.getElementById("question").innerText = q.q;
+    draw(q.type);
+
+    let answersDiv = document.getElementById("answers");
+    answersDiv.innerHTML="";
+
+    q.a.forEach((ans,i)=>{
+        let btn = document.createElement("button");
+        btn.innerText = ans;
+        btn.onclick = ()=>checkAnswer(btn,i);
+        answersDiv.appendChild(btn);
+    });
+}
+
+function checkAnswer(btn,i){
+    clearInterval(timer);
+
+    let correct = questions[current].c;
+    let buttons = document.querySelectorAll("#answers button");
+
+    buttons.forEach(b=>b.disabled=true);
+
+    if(i===correct){
+        btn.classList.add("correct");
+        score++;
+    } else {
+        btn.classList.add("wrong");
+        buttons[correct].classList.add("correct");
+    }
+}
+
+function nextQuestion(){
+    current++;
+    if(current<questions.length){
+        loadQuestion();
+    } else {
+        document.getElementById("game").style.display="none";
+        document.getElementById("result").innerHTML =
+        `<h2>🎉 نتيجتك: ${score} / ${questions.length}</h2>
+         <button onclick="location.reload()">لعب مرة أخرى</button>`;
+    }
+}
+
+function resetTimer(){
+    clearInterval(timer);
+    timeLeft = 15;
+
+    timer = setInterval(()=>{
+        document.getElementById("timer").innerText = "⏱️ الوقت: " + timeLeft;
+        timeLeft--;
+
+        if(timeLeft<0){
+            clearInterval(timer);
+            nextQuestion();
+        }
+    },1000);
+}
+
+</script>
+
 </body>
 </html>
